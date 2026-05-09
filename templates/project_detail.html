@@ -1,0 +1,710 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-slate-950 text-purple-100 p-6">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+
+        <div>
+
+            <a href="/dashboard"
+               class="text-purple-400 hover:text-purple-300 text-sm">
+                ← Back to Dashboard
+            </a>
+
+            <h1 class="text-4xl font-bold text-purple-300 mt-3">
+                {{ project.name }}
+            </h1>
+
+            <p class="text-purple-300/60 mt-2 max-w-2xl">
+                {{ project.description or "No project description." }}
+            </p>
+
+        </div>
+                <!-- Action Bar -->
+
+        <div class="flex items-center gap-4 mb-8">
+
+            <button
+                onclick="openMembersDrawer()"
+                class="bg-slate-900 hover:bg-slate-800 border border-purple-500/20 px-5 py-3 rounded-xl transition"
+            >
+                Team Members
+            </button>
+
+            <button
+                onclick="openTaskDrawer()"
+                class="bg-purple-600 hover:bg-purple-500 px-5 py-3 rounded-xl font-semibold transition"
+            >
+                + Create Task
+            </button>
+
+        </div>
+    </div>
+    <!-- Members Drawer -->
+
+    <div
+        id="membersDrawer"
+        class="fixed top-0 left-[-400px] w-[350px] h-full bg-slate-950 border-r border-purple-500/20 z-50 transition-all duration-300 overflow-y-auto"
+    >
+
+        <div class="p-6">
+
+            <div class="flex items-center justify-between mb-8">
+
+                <h2 class="text-2xl font-bold text-purple-300">
+                    Team Members
+                </h2>
+
+                <button
+                    onclick="closeMembersDrawer()"
+                    class="text-purple-300 hover:text-white text-2xl"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <!-- Members -->
+            <div class="space-y-3 mb-8">
+
+                {% for member in members %}
+
+                <div class="bg-slate-900 border border-purple-500/20 rounded-xl p-4">
+
+                    <div class="font-semibold">
+                        {{ member.username }}
+                    </div>
+
+                    <div class="text-sm text-purple-300/60">
+
+                        {% if member.id == project.owner_id %}
+                            Owner
+                        {% else %}
+                            Member
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <!-- Add Member -->
+            {% if current_user.id == project.owner_id %}
+
+            <form
+                method="POST"
+                action="/projects/{{ project.id }}/add-member"
+                class="space-y-4"
+            >
+
+                <input
+                    type="text"
+                    name="username"
+                    required
+                    placeholder="Enter username"
+                    class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
+                >
+
+                <button
+                    type="submit"
+                    class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-semibold transition"
+                >
+                    Add Member
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+    <!-- Create Task Drawer -->
+
+    <div
+        id="taskDrawer"
+        class="fixed top-0 right-[-500px] w-[450px] h-full bg-slate-950 border-l border-purple-500/20 z-50 transition-all duration-300 overflow-y-auto"
+    >
+
+        <div class="p-6">
+
+            <div class="flex items-center justify-between mb-8">
+
+                <h2 class="text-2xl font-bold text-purple-300">
+                    Create Task
+                </h2>
+
+                <button
+                    onclick="closeTaskDrawer()"
+                    class="text-purple-300 hover:text-white text-2xl"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <form
+                method="POST"
+                action="/projects/{{ project.id }}/create-task"
+                class="space-y-5"
+            >
+
+                <div>
+
+                    <label class="block text-sm mb-2">
+                        Task Title
+                    </label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        required
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                    <input type="hidden" name="timezone" id="timezone">
+                </div>
+
+                <div>
+
+                    <label class="block text-sm mb-2">
+                        Priority
+                    </label>
+
+                    <select
+                        name="priority"
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <!-- Start Date -->
+                    <div>
+
+                        <label class="block text-sm mb-2">
+                            Start Date
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            name="start_date"
+                            class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+
+                    </div>
+
+                    <!-- Due Date -->
+                    <div>
+
+                        <label class="block text-sm mb-2">
+                            Due Date
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            name="due_date"
+                            class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+
+                    </div>
+
+                </div>
+                <div>
+
+                    <label class="block text-sm mb-2">
+                        Assignee
+                    </label>
+
+                    <select
+                        name="assignee_id"
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+
+                        <option value="">
+                            Unassigned
+                        </option>
+
+                        {% for member in members %}
+
+                        <option value="{{ member.id }}">
+                            {{ member.username }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div>
+
+                    <label class="block text-sm mb-2">
+                        Description
+                    </label>
+
+                    <textarea
+                        name="description"
+                        rows="5"
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    ></textarea>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-semibold transition"
+                >
+                    Create Task
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+    <!-- Overlay -->
+
+    <div
+        id="overlay"
+        onclick="closeAllDrawers()"
+        class="fixed inset-0 bg-black/50 z-40 hidden"
+    ></div>
+    <!-- Kanban Board -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- TODO -->
+        <div class="glass-card rounded-2xl p-5" ondragover="allowDrop(event)"
+     ondrop="drop(event, 'todo')">
+
+            <div class="flex items-center justify-between mb-6">
+
+                <h2 class="text-xl font-bold text-purple-300">
+                    Todo
+                </h2>
+
+                <span class="bg-purple-500/20 px-3 py-1 rounded-full text-sm">
+                    {{ todo_tasks|length }}
+                </span>
+
+            </div>
+
+            <div class="space-y-4">
+
+                {% for task in todo_tasks %}
+                 
+                    {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
+                    {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
+
+                    <div class="bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
+
+                        <!-- HEADER -->
+                        <div class="flex items-start justify-between mb-3">
+
+                            <!-- TITLE + BADGES -->
+                            <div class="space-y-1">
+
+                                <div class="flex items-center gap-2">
+
+                                    <h3 class="font-semibold text-lg text-purple-100">
+                                        {{ task.title }}
+                                    </h3>
+
+                                    {% if task.status == 'done' %}
+                                        <span class="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
+                                            Done
+                                        </span>
+
+                                    {% elif is_overdue %}
+                                        <span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
+                                            Overdue
+                                        </span>
+
+                                    {% elif is_due_soon %}
+                                        <span class="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
+                                            Due Soon
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                                <!-- TIME RANGE -->
+                                <div class="text-xs text-purple-300/50">
+
+                                    {% if task.start_date %}
+                                        Start: {{ task.start_date.strftime('%d %b %Y %H:%M') }}
+                                    {% else %}
+                                        Start: Not set
+                                    {% endif %}
+
+                                    <span class="mx-1">→</span>
+
+                                    {% if task.due_date %}
+                                        Due: {{ task.due_date.strftime('%d %b %Y %H:%M') }}
+                                    {% else %}
+                                        Due: Not set
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                            <!-- PRIORITY -->
+                            <span class="
+                                text-xs px-2 py-1 rounded-full
+
+                                {% if task.priority == 'high' %}
+                                    bg-red-500/20 text-red-300
+                                {% elif task.priority == 'medium' %}
+                                    bg-yellow-500/20 text-yellow-300
+                                {% else %}
+                                    bg-green-500/20 text-green-300
+                                {% endif %}
+                            ">
+                                {{ task.priority }}
+                            </span>
+
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <p class="text-sm text-purple-300/70 mb-4">
+                            {{ task.description or "No description." }}
+                        </p>
+
+                        <!-- FOOTER -->
+                        <div class="flex items-center justify-between text-sm">
+
+                            <span class="text-purple-400">
+                                {% if task.assignee %}
+                                    {{ task.assignee.username }}
+                                {% else %}
+                                    Unassigned
+                                {% endif %}
+                            </span>
+
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        <!-- IN PROGRESS -->
+        <div class="glass-card rounded-2xl p-5" ondragover="allowDrop(event)"
+     ondrop="drop(event, 'in_progress')">
+
+            <div class="flex items-center justify-between mb-6">
+
+                <h2 class="text-xl font-bold text-yellow-300">
+                    In Progress
+                </h2>
+
+                <span class="bg-yellow-500/20 px-3 py-1 rounded-full text-sm">
+                    {{ in_progress_tasks|length }}
+                </span>
+
+            </div>
+
+            <div class="space-y-4">
+
+                {% for task in in_progress_tasks %}
+                 
+                    {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
+                    {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
+
+                    <div class="bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
+
+                        <!-- HEADER -->
+                        <div class="flex items-start justify-between mb-3">
+
+                            <!-- TITLE + BADGES -->
+                            <div class="space-y-1">
+
+                                <div class="flex items-center gap-2">
+
+                                    <h3 class="font-semibold text-lg text-purple-100">
+                                        {{ task.title }}
+                                    </h3>
+
+                                    {% if task.status == 'done' %}
+                                        <span class="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
+                                            Done
+                                        </span>
+
+                                    {% elif is_overdue %}
+                                        <span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
+                                            Overdue
+                                        </span>
+
+                                    {% elif is_due_soon %}
+                                        <span class="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
+                                            Due Soon
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                                <!-- TIME RANGE -->
+                                <div class="text-xs text-purple-300/50">
+
+                                    {% if task.start_date %}
+                                        Start: {{ task.start_date.strftime('%d %b %Y %H:%M') }}
+                                    {% else %}
+                                        Start: Not set
+                                    {% endif %}
+
+                                    <span class="mx-1">→</span>
+
+                                    {% if task.due_date %}
+                                        Due: {{ task.due_date.strftime('%d %b %Y %H:%M') }}
+                                    {% else %}
+                                        Due: Not set
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                            <!-- PRIORITY -->
+                            <span class="
+                                text-xs px-2 py-1 rounded-full
+
+                                {% if task.priority == 'high' %}
+                                    bg-red-500/20 text-red-300
+                                {% elif task.priority == 'medium' %}
+                                    bg-yellow-500/20 text-yellow-300
+                                {% else %}
+                                    bg-green-500/20 text-green-300
+                                {% endif %}
+                            ">
+                                {{ task.priority }}
+                            </span>
+
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <p class="text-sm text-purple-300/70 mb-4">
+                            {{ task.description or "No description." }}
+                        </p>
+
+                        <!-- FOOTER -->
+                        <div class="flex items-center justify-between text-sm">
+
+                            <span class="text-purple-400">
+                                {% if task.assignee %}
+                                    {{ task.assignee.username }}
+                                {% else %}
+                                    Unassigned
+                                {% endif %}
+                            </span>
+
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        <!-- DONE -->
+        <div class="glass-card rounded-2xl p-5" ondragover="allowDrop(event)"
+     ondrop="drop(event, 'done')">
+
+            <div class="flex items-center justify-between mb-6">
+
+                <h2 class="text-xl font-bold text-green-300">
+                    Done
+                </h2>
+
+                <span class="bg-green-500/20 px-3 py-1 rounded-full text-sm">
+                    {{ done_tasks|length }}
+                </span>
+
+            </div>
+
+            <div class="space-y-4">
+
+                {% for task in done_tasks %}
+                 
+                    {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
+                    {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
+
+                    <div class="bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
+
+                        <!-- HEADER -->
+                        <div class="flex items-start justify-between mb-3">
+
+                            <!-- TITLE + BADGES -->
+                            <div class="space-y-1">
+
+                                <div class="flex items-center gap-2">
+
+                                    <h3 class="font-semibold text-lg text-purple-100">
+                                        {{ task.title }}
+                                    </h3>
+
+                                    {% if task.status == 'done' %}
+                                        <span class="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
+                                            Done
+                                        </span>
+
+                                    {% elif is_overdue %}
+                                        <span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
+                                            Overdue
+                                        </span>
+
+                                    {% elif is_due_soon %}
+                                        <span class="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
+                                            Due Soon
+                                        </span>
+                                    {% endif %}
+
+                                </div>
+
+                                <!-- TIME RANGE -->
+                                <div class="text-xs text-purple-300/50">
+
+                                    {% if task.start_date %}
+                                        Start: {{ task.start_date.strftime('%d %b %Y %H:%M') }}
+                                    {% else %}
+                                        Start: Not set
+                                    {% endif %}
+
+                                    <span class="mx-1">→</span>
+
+                                    {% if task.due_date %}
+                                        Due: {{ task.due_date.strftime('%d %b %Y %H:%M') }}
+                                    {% else %}
+                                        Due: Not set
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                            <!-- PRIORITY -->
+                            <span class="
+                                text-xs px-2 py-1 rounded-full
+
+                                {% if task.priority == 'high' %}
+                                    bg-red-500/20 text-red-300
+                                {% elif task.priority == 'medium' %}
+                                    bg-yellow-500/20 text-yellow-300
+                                {% else %}
+                                    bg-green-500/20 text-green-300
+                                {% endif %}
+                            ">
+                                {{ task.priority }}
+                            </span>
+
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <p class="text-sm text-purple-300/70 mb-4">
+                            {{ task.description or "No description." }}
+                        </p>
+
+                        <!-- FOOTER -->
+                        <div class="flex items-center justify-between text-sm">
+
+                            <span class="text-purple-400">
+                                {% if task.assignee %}
+                                    {{ task.assignee.username }}
+                                {% else %}
+                                    Unassigned
+                                {% endif %}
+                            </span>
+
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+function openMembersDrawer() {
+    document.getElementById('membersDrawer').style.left = '0';
+    document.getElementById('overlay').classList.remove('hidden');
+}
+
+function closeMembersDrawer() {
+    document.getElementById('membersDrawer').style.left = '-400px';
+    document.getElementById('overlay').classList.add('hidden');
+}
+
+function openTaskDrawer() {
+    document.getElementById('taskDrawer').style.right = '0';
+    document.getElementById('overlay').classList.remove('hidden');
+}
+
+function closeTaskDrawer() {
+    document.getElementById('taskDrawer').style.right = '-500px';
+    document.getElementById('overlay').classList.add('hidden');
+}
+
+function closeAllDrawers() {
+    closeMembersDrawer();
+    closeTaskDrawer();
+}
+document.getElementById("timezone").value =
+    Intl.DateTimeFormat().resolvedOptions().timeZone;
+</script>
+<script>
+
+let draggedTaskId = null;
+
+// when drag starts
+function drag(event) {
+    draggedTaskId = event.target.closest('[data-task-id]').dataset.taskId;
+}
+
+// allow drop
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+// handle drop
+function drop(event, newStatus) {
+    event.preventDefault();
+
+    fetch(`/tasks/${draggedTaskId}/move`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            status: newStatus
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // simple + stable MVP
+        }
+    });
+
+}
+
+</script>
+{% endblock %}

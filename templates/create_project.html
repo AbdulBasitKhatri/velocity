@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Create Project{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="glass-card w-full max-w-2xl p-8 rounded-3xl shadow-2xl">
+
+        <div class="mb-8">
+
+            <h1 class="text-4xl font-bold text-purple-300 mb-2">
+                Create New Project
+            </h1>
+
+            <p class="text-purple-300/60">
+                Start organizing your tasks and workflow.
+            </p>
+
+        </div>
+
+        <form method="POST" class="space-y-6">
+
+            <!-- Project Name -->
+            <div>
+
+                <label class="block text-sm font-medium mb-2">
+                    Project Name
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="Enter project name"
+                    class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 outline-none transition"
+                >
+
+            </div>
+
+            <!-- Description -->
+            <div>
+
+                <label class="block text-sm font-medium mb-2">
+                    Description
+                </label>
+
+                <textarea
+                    name="description"
+                    rows="5"
+                    placeholder="Describe your project..."
+                    class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 outline-none transition resize-none"
+                ></textarea>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-between pt-4">
+
+                <a href="/dashboard"
+                   class="text-purple-300/70 hover:text-purple-300 transition">
+                    ← Back to Dashboard
+                </a>
+
+                <button
+                    type="submit"
+                    class="bg-purple-600 hover:bg-purple-500 px-6 py-3 rounded-xl font-semibold shadow-lg shadow-purple-500/20 transition hover:scale-[1.02]"
+                >
+                    Create Project
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

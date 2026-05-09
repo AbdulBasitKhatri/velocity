@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="glass-card w-full max-w-md p-8 rounded-2xl shadow-2xl">
+    <h2 class="text-3xl font-bold text-center mb-6 text-purple-400">Access Terminal</h2>
+    <form action="/login" method="POST" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium mb-1">Username</label>
+            <input type="text" name="username" required 
+                class="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none transition">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Password</label>
+            <input type="password" name="password" required 
+                class="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none transition">
+        </div>
+        <button type="submit" 
+            class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg shadow-purple-500/20 transition duration-300 transform hover:scale-[1.02]">
+            Login
+        </button>
+    </form>
+    <p class="mt-6 text-center text-sm text-purple-300/60">
+        New operator? <a href="/register" class="text-purple-400 hover:underline">Register here</a>
+    </p>
+</div>
+{% endblock %}
