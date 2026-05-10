@@ -274,6 +274,137 @@
         </div>
 
     </div>
+
+    <!-- EDIT TASK MODAL -->
+
+    <div
+    id="editTaskModal" onclick="closeAllDrawers()"
+    class="fixed inset-0 bg-black/60 z-[50] hidden items-center justify-center p-4 overflow-y-auto"
+    >
+
+        <div onclick="event.stopPropagation();" class="bg-slate-950 border border-purple-500/20 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+
+            <div class="flex items-center justify-between mb-6">
+
+                <h2 class="text-2xl font-bold text-purple-300">
+                    Edit Task
+                </h2>
+
+                <button
+                    onclick="closeEditTaskModal()"
+                    class="text-2xl text-purple-300 hover:text-white"
+                >
+                    x
+                </button>
+
+            </div>
+
+            <form
+                id="editTaskForm"
+                method="POST"
+                class="space-y-5"
+            >
+
+                <input type="hidden" name="timezone" id="editTimezone">
+
+                <div>
+                    <label class="block text-sm mb-2">Task Title</label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        id="editTitle"
+                        required
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 outline-none"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-2">Priority</label>
+
+                    <select
+                        name="priority"
+                        id="editPriority"
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3"
+                    >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+
+                    <div>
+                        <label class="block text-sm mb-2">Start Date</label>
+
+                        <input
+                            type="datetime-local"
+                            name="start_date"
+                            id="editStartDate"
+                            class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-2">Due Date</label>
+
+                        <input
+                            type="datetime-local"
+                            name="due_date"
+                            id="editDueDate"
+                            class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3"
+                        >
+                    </div>
+
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-2">Assignee</label>
+
+                    <select
+                        name="assignee_id"
+                        id="editAssignee"
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3"
+                    >
+
+                        <option value="">
+                            Unassigned
+                        </option>
+
+                        {% for member in members %}
+                        <option value="{{ member.id }}">
+                            {{ member.username }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-2">Description</label>
+
+                    <textarea
+                        name="description"
+                        id="editDescription"
+                        rows="5"
+                        class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-4 py-3 resize-none"
+                    ></textarea>
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-semibold"
+                >
+                    Save Changes
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
     <!-- Overlay -->
 
     <div
@@ -307,7 +438,7 @@
                     {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
                     {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
 
-                    <div class="bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
+                    <div class="group bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
 
                         <!-- HEADER -->
                         <div class="flex items-start justify-between mb-3">
@@ -360,20 +491,62 @@
 
                             </div>
 
-                            <!-- PRIORITY -->
-                            <span class="
-                                text-xs px-2 py-1 rounded-full
+                            <!-- RIGHT SIDE -->
+                            <div class="flex items-start gap-3">
 
-                                {% if task.priority == 'high' %}
-                                    bg-red-500/20 text-red-300
-                                {% elif task.priority == 'medium' %}
-                                    bg-yellow-500/20 text-yellow-300
-                                {% else %}
-                                    bg-green-500/20 text-green-300
+                                <!-- ACTIONS -->
+                                {% if current_user.id == task.created_by or current_user.id == project.owner_id %}
+                                <div class="hidden group-hover:flex items-center gap-2">
+
+                                    <!-- EDIT -->
+                                    <button
+                                        onclick="openEditTaskModal(
+                                            {{ task.id }},
+                                            `{{ task.title|escape }}`,
+                                            `{{ task.description|default('', true)|escape }}`,
+                                            `{{ task.priority }}`,
+                                            `{{ task.assignee_id or '' }}`,
+                                            `{{ task.start_date.strftime('%Y-%m-%dT%H:%M') if task.start_date else '' }}`,
+                                            `{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '' }}`
+                                        )"
+                                        class="text-purple-300 hover:text-white transition"
+                                    >
+                                        <i data-feather="edit-2" class="w-4 h-4"></i>
+                                    </button>
+
+                                    <!-- DELETE -->
+                                    <form
+                                        method="POST"
+                                        action="/tasks/{{ task.id }}/delete"
+                                        onsubmit="return confirm('Delete this task?')"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="text-red-400 hover:text-red-300 transition"
+                                        >
+                                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+
+                                </div>
                                 {% endif %}
-                            ">
-                                {{ task.priority }}
-                            </span>
+
+                                <!-- PRIORITY -->
+                                <span class="
+                                    text-xs px-2 py-1 rounded-full
+
+                                    {% if task.priority == 'high' %}
+                                        bg-red-500/20 text-red-300
+                                    {% elif task.priority == 'medium' %}
+                                        bg-yellow-500/20 text-yellow-300
+                                    {% else %}
+                                        bg-green-500/20 text-green-300
+                                    {% endif %}
+                                ">
+                                    {{ task.priority }}
+                                </span>
+
+                            </div>
 
                         </div>
 
@@ -425,7 +598,7 @@
                     {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
                     {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
 
-                    <div class="bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
+                    <div class="group bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
 
                         <!-- HEADER -->
                         <div class="flex items-start justify-between mb-3">
@@ -478,20 +651,62 @@
 
                             </div>
 
-                            <!-- PRIORITY -->
-                            <span class="
-                                text-xs px-2 py-1 rounded-full
+                            <!-- RIGHT SIDE -->
+                            <div class="flex items-start gap-3">
 
-                                {% if task.priority == 'high' %}
-                                    bg-red-500/20 text-red-300
-                                {% elif task.priority == 'medium' %}
-                                    bg-yellow-500/20 text-yellow-300
-                                {% else %}
-                                    bg-green-500/20 text-green-300
+                                <!-- ACTIONS -->
+                                {% if current_user.id == task.created_by or current_user.id == project.owner_id %}
+                                <div class="hidden group-hover:flex items-center gap-2">
+
+                                    <!-- EDIT -->
+                                    <button
+                                        onclick="openEditTaskModal(
+                                            {{ task.id }},
+                                            `{{ task.title|escape }}`,
+                                            `{{ task.description|default('', true)|escape }}`,
+                                            `{{ task.priority }}`,
+                                            `{{ task.assignee_id or '' }}`,
+                                            `{{ task.start_date.strftime('%Y-%m-%dT%H:%M') if task.start_date else '' }}`,
+                                            `{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '' }}`
+                                        )"
+                                        class="text-purple-300 hover:text-white transition"
+                                    >
+                                        <i data-feather="edit-2" class="w-4 h-4"></i>
+                                    </button>
+
+                                    <!-- DELETE -->
+                                    <form
+                                        method="POST"
+                                        action="/tasks/{{ task.id }}/delete"
+                                        onsubmit="return confirm('Delete this task?')"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="text-red-400 hover:text-red-300 transition"
+                                        >
+                                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+
+                                </div>
                                 {% endif %}
-                            ">
-                                {{ task.priority }}
-                            </span>
+
+                                <!-- PRIORITY -->
+                                <span class="
+                                    text-xs px-2 py-1 rounded-full
+
+                                    {% if task.priority == 'high' %}
+                                        bg-red-500/20 text-red-300
+                                    {% elif task.priority == 'medium' %}
+                                        bg-yellow-500/20 text-yellow-300
+                                    {% else %}
+                                        bg-green-500/20 text-green-300
+                                    {% endif %}
+                                ">
+                                    {{ task.priority }}
+                                </span>
+
+                            </div>
 
                         </div>
 
@@ -543,7 +758,7 @@
                     {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
                     {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
 
-                    <div class="bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
+                    <div class="group bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
 
                         <!-- HEADER -->
                         <div class="flex items-start justify-between mb-3">
@@ -596,20 +811,62 @@
 
                             </div>
 
-                            <!-- PRIORITY -->
-                            <span class="
-                                text-xs px-2 py-1 rounded-full
+                            <!-- RIGHT SIDE -->
+                            <div class="flex items-start gap-3">
 
-                                {% if task.priority == 'high' %}
-                                    bg-red-500/20 text-red-300
-                                {% elif task.priority == 'medium' %}
-                                    bg-yellow-500/20 text-yellow-300
-                                {% else %}
-                                    bg-green-500/20 text-green-300
+                                <!-- ACTIONS -->
+                                {% if current_user.id == task.created_by or current_user.id == project.owner_id %}
+                                <div class="hidden group-hover:flex items-center gap-2">
+
+                                    <!-- EDIT -->
+                                    <button
+                                        onclick="openEditTaskModal(
+                                            {{ task.id }},
+                                            `{{ task.title|escape }}`,
+                                            `{{ task.description|default('', true)|escape }}`,
+                                            `{{ task.priority }}`,
+                                            `{{ task.assignee_id or '' }}`,
+                                            `{{ task.start_date.strftime('%Y-%m-%dT%H:%M') if task.start_date else '' }}`,
+                                            `{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '' }}`
+                                        )"
+                                        class="text-purple-300 hover:text-white transition"
+                                    >
+                                        <i data-feather="edit-2" class="w-4 h-4"></i>
+                                    </button>
+
+                                    <!-- DELETE -->
+                                    <form
+                                        method="POST"
+                                        action="/tasks/{{ task.id }}/delete"
+                                        onsubmit="return confirm('Delete this task?')"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="text-red-400 hover:text-red-300 transition"
+                                        >
+                                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+
+                                </div>
                                 {% endif %}
-                            ">
-                                {{ task.priority }}
-                            </span>
+
+                                <!-- PRIORITY -->
+                                <span class="
+                                    text-xs px-2 py-1 rounded-full
+
+                                    {% if task.priority == 'high' %}
+                                        bg-red-500/20 text-red-300
+                                    {% elif task.priority == 'medium' %}
+                                        bg-yellow-500/20 text-yellow-300
+                                    {% else %}
+                                        bg-green-500/20 text-green-300
+                                    {% endif %}
+                                ">
+                                    {{ task.priority }}
+                                </span>
+
+                            </div>
 
                         </div>
 
@@ -643,6 +900,52 @@
 </div>
 <script>
 
+function openEditTaskModal(
+    id,
+    title,
+    description,
+    priority,
+    assignee,
+    startDate,
+    dueDate
+) {
+
+    document.getElementById('editTaskForm').action =
+        `/tasks/${id}/edit`;
+
+    document.getElementById('editTitle').value = title;
+    document.getElementById('editDescription').value = description;
+    document.getElementById('editPriority').value = priority;
+    document.getElementById('editAssignee').value = assignee;
+
+    document.getElementById('editStartDate').value = startDate;
+    document.getElementById('editDueDate').value = dueDate;
+
+    document.getElementById('editTimezone').value =
+        Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    document.getElementById('editTaskModal')
+        .classList.remove('hidden');
+
+    document.getElementById('editTaskModal')
+        .classList.add('flex');
+
+    feather.replace();
+    document.getElementById('overlay').classList.remove('hidden');
+}
+
+function closeEditTaskModal() {
+
+    document.getElementById('editTaskModal')
+        .classList.add('hidden');
+
+    document.getElementById('editTaskModal')
+        .classList.remove('flex');
+
+    document.getElementById('overlay').classList.add('hidden');
+}
+
+
 function openMembersDrawer() {
     document.getElementById('membersDrawer').style.left = '0';
     document.getElementById('overlay').classList.remove('hidden');
@@ -666,6 +969,7 @@ function closeTaskDrawer() {
 function closeAllDrawers() {
     closeMembersDrawer();
     closeTaskDrawer();
+    closeEditTaskModal();
 }
 document.getElementById("timezone").value =
     Intl.DateTimeFormat().resolvedOptions().timeZone;

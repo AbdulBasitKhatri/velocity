@@ -453,6 +453,69 @@ def move_task(task_id):
 
     return jsonify({"success": True})
 
+@app.route('/tasks/<int:task_id>/edit', methods=['POST'])
+@login_required
+def edit_task(task_id):
+
+    task = Task.query.get_or_404(task_id)
+
+    project = Project.query.get(task.project_id)
+
+    # permission
+    if current_user.id != task.created_by and current_user.id != project.owner_id:
+        return "Forbidden", 403
+
+    timezone = request.form.get('timezone')
+
+    task.title = request.form['title']
+    task.description = request.form.get('description')
+    task.priority = request.form.get('priority', 'medium')
+
+    assignee_id = request.form.get('assignee_id')
+
+    task.assignee_id = int(assignee_id) if assignee_id else None
+
+    task.start_date = to_utc(
+        request.form.get('start_date'),
+        timezone
+    )
+
+    task.due_date = to_utc(
+        request.form.get('due_date'),
+        timezone
+    )
+
+    task.updated_at = datetime.utcnow()
+
+    db.session.commit()
+
+    return redirect(url_for(
+        'project_detail',
+        project_id=project.id
+    ))
+
+@app.route('/tasks/<int:task_id>/delete', methods=['POST'])
+@login_required
+def delete_task(task_id):
+
+    task = Task.query.get_or_404(task_id)
+
+    project = Project.query.get(task.project_id)
+
+    # permission
+    if current_user.id != task.created_by and current_user.id != project.owner_id:
+        return "Forbidden", 403
+
+    project_id = project.id
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return redirect(url_for(
+        'project_detail',
+        project_id=project_id
+    ))
+
 # Initialize Database
 if __name__ == '__main__':
     with app.app_context():
