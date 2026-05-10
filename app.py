@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, redirect, url_for, render_template
+from flask import Flask, jsonify, request, redirect, url_for, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -125,7 +125,7 @@ class Task(db.Model):
 
 @app.route('/')
 def index():
-    return jsonify({"message": "Task Tracking API is running", "database": "shop_db"})
+    return render_template('landing.html')
 
 @app.route('/projects')
 @login_required
@@ -204,67 +204,61 @@ def get_project_tasks(project_id):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-
     if request.method == 'GET':
         return render_template('register.html')
 
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
+    # 1. Get data from form
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
 
+    # 2. Check if user already exists
     if User.query.filter_by(username=username).first():
-        return "Username already exists"
+        flash("Username already exists. Please choose another.", "danger")
+        return redirect(url_for('register'))
 
-    user = User(
-        username=username,
-        email=email
-    )
+    if User.query.filter_by(email=email).first():
+        flash("Email already registered.", "danger")
+        return redirect(url_for('register'))
 
-    user.set_password(password)
-
-    db.session.add(user)
-    db.session.commit()
-
-    return redirect(url_for('login'))
-    data = request.get_json()
-    
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({"error": "Username already exists"}), 400
-    
-    new_user = User(
-        username=data['username'],
-        email=data['email'],
-        full_name=data.get('full_name')
-    )
-    new_user.set_password(data['password'])
-    
-    db.session.add(new_user)
-    db.session.commit()
-    
-    return jsonify({"message": "User registered successfully"}), 201
+    # 3. Create and save user
+    try:
+        user = User(username=username, email=email)
+        user.set_password(password)
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        flash("Registration successful! Please log in.", "success")
+        return redirect(url_for('login'))
+    except Exception as e:
+        db.session.rollback()
+        flash("An error occurred during registration.", "danger")
+        return redirect(url_for('register'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-
     if request.method == 'GET':
         return render_template('login.html')
 
     username = request.form['username']
     password = request.form['password']
-
     user = User.query.filter_by(username=username).first()
 
     if user and user.check_password(password):
         login_user(user)
         return redirect(url_for('dashboard'))
 
-    return "Invalid credentials"
+    # Flash the error message and reload the page
+    flash("Invalid username or password", "danger")
+    return redirect(url_for('login'))
+
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return jsonify({"message": "Logged out successfully"}), 200
+    return redirect(url_for('login')) 
 
 @app.route('/dashboard')
 @login_required
