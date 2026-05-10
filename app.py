@@ -565,8 +565,9 @@ def delete_task(task_id):
         project_id=project_id
     ))
 
+with app.app_context():
+    db.create_all()
+
 # Initialize Database
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
