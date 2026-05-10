@@ -4,87 +4,94 @@
 
 {% block content %}
 
-<div class="min-h-screen bg-slate-950 text-purple-100 p-6">
+<div class="flex min-h-screen bg-slate-950">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-10">
+    {% include "sidebar.html" %}
 
-        <div>
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 text-purple-100 p-6 pt-20 md:pt-6 overflow-x-hidden">
 
-            <a href="/dashboard"
-               class="text-purple-400 hover:text-purple-300 text-sm">
-                ← Back to Dashboard
-            </a>
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
 
-            <h1 class="text-4xl font-bold text-purple-300 mt-3">
-                My Projects
-            </h1>
+            <div>
 
-        </div>
+                <a href="/dashboard"
+                   class="text-purple-400 hover:text-purple-300 text-sm">
+                    ← Back to Dashboard
+                </a>
 
-        <a href="/create-project"
-           class="bg-purple-600 hover:bg-purple-500 px-5 py-3 rounded-xl font-semibold transition">
-            + Create Project
-        </a>
-
-    </div>
-
-    <!-- Projects Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-        {% for project in projects %}
-
-        <div class="bg-slate-900 border border-purple-500/10 rounded-2xl p-6 hover:border-purple-500/30 transition">
-
-            <div class="flex items-start justify-between mb-4">
-
-                <div>
-
-                    <h2 class="text-2xl font-bold text-purple-200">
-                        {{ project.name }}
-                    </h2>
-
-                    <p class="text-purple-300/60 text-sm mt-1">
-                        Created {{ project.created_at.strftime('%d %b %Y') }}
-                    </p>
-
-                </div>
-
-                {% if current_user.id == project.owner_id %}
-                <span class="text-xs bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full">
-                    Owner
-                </span>
-                {% endif %}
+                <h1 class="text-4xl font-bold text-purple-300 mt-3">
+                    My Projects
+                </h1>
 
             </div>
 
-            <p class="text-purple-300/70 mb-6 line-clamp-3">
-                {{ project.description or "No description." }}
-            </p>
-
-            <!-- Stats -->
-            <div class="flex items-center gap-4 mb-6 text-sm">
-
-                <div class="bg-slate-800 px-3 py-2 rounded-xl">
-                    {{ project.tasks|length }} Tasks
-                </div>
-
-                <div class="bg-slate-800 px-3 py-2 rounded-xl">
-                    {{ project.members|length }} Members
-                </div>
-
-            </div>
-
-            <a href="/projects/{{ project.id }}"
-               class="block text-center bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-semibold transition">
-                View Project
+            <a href="/create-project"
+               class="bg-purple-600 hover:bg-purple-500 px-5 py-3 rounded-xl font-semibold transition text-center">
+                + Create Project
             </a>
 
         </div>
 
-        {% endfor %}
+        <!-- Projects Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-    </div>
+            {% for project in projects %}
+
+            <div class="bg-slate-900 border border-purple-500/10 rounded-2xl p-6 hover:border-purple-500/30 transition">
+
+                <div class="flex items-start justify-between mb-4">
+
+                    <div>
+
+                        <h2 class="text-2xl font-bold text-purple-200">
+                            {{ project.name }}
+                        </h2>
+
+                        <p class="text-purple-300/60 text-sm mt-1">
+                            Created {{ project.created_at.strftime('%d %b %Y') }}
+                        </p>
+
+                    </div>
+
+                    {% if current_user.id == project.owner_id %}
+                    <span class="text-xs bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full">
+                        Owner
+                    </span>
+                    {% endif %}
+
+                </div>
+
+                <p class="text-purple-300/70 mb-6 line-clamp-3">
+                    {{ project.description or "No description." }}
+                </p>
+
+                <!-- Stats -->
+                <div class="flex items-center gap-4 mb-6 text-sm">
+
+                    <div class="bg-slate-800 px-3 py-2 rounded-xl">
+                        {{ project.tasks|length }} Tasks
+                    </div>
+
+                    <div class="bg-slate-800 px-3 py-2 rounded-xl">
+                        {{ project.members|length }} Members
+                    </div>
+
+                </div>
+
+                <a href="/projects/{{ project.id }}"
+                   class="block text-center bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-semibold transition">
+                    View Project
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </main>
 
 </div>
 
