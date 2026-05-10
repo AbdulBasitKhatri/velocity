@@ -1,106 +1,315 @@
 <!-- MOBILE TOPBAR -->
-    <div class="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-purple-500/20 px-4 py-3 flex items-center justify-between">
+<div class="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#0b0617]/95 backdrop-blur-xl border-b border-purple-500/10 px-5 py-4 flex items-center justify-between">
 
-        <h1 class="text-xl font-bold text-purple-400">
+    <div>
+        <h1 class="text-lg font-black text-white leading-none">
             Velocity
         </h1>
 
-        <button
-            onclick="toggleSidebar()"
-            class="text-purple-300 hover:text-white text-2xl leading-none"
-        >
-            ☰
-        </button>
-
+        <p class="text-[10px] text-purple-300/40 mt-1">
+            Workflow Platform
+        </p>
     </div>
 
-    <!-- MOBILE OVERLAY -->
-    <div
-        id="sidebarOverlay"
-        onclick="closeSidebar()"
-        class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"
-    ></div>
-
-    <!-- SIDEBAR -->
-    <aside
-        id="sidebar"
-        class="
-            fixed md:static
-            top-0 left-[-300px] md:left-0
-            z-50 md:z-auto
-            h-screen md:h-auto
-            w-64
-            bg-slate-900
-            border-r border-purple-500/20
-            p-6
-            flex flex-col
-            transition-all duration-300
-        "
+    <!-- MENU BUTTON -->
+    <button
+        onclick="toggleSidebar()"
+        class="w-11 h-11 rounded-2xl bg-[#140a24] border border-purple-500/10 flex items-center justify-center text-purple-300"
     >
 
-        <!-- HEADER -->
-        <div class="flex items-center justify-between mb-10">
+        <!-- MENU ICON -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-5 h-5"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
 
-            <h1 class="text-3xl font-bold text-purple-400">
-                Velocity
-            </h1>
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16" />
 
-            <!-- MOBILE CLOSE -->
+        </svg>
+
+    </button>
+
+</div>
+
+<!-- MOBILE OVERLAY -->
+<div
+    id="sidebarOverlay"
+    onclick="closeSidebar()"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden md:hidden"
+></div>
+
+<!-- SIDEBAR -->
+<aside
+    id="sidebar"
+    class="
+        fixed top-0 left-0
+        -translate-x-full md:translate-x-0
+        z-50
+        h-screen
+        w-72
+        bg-[#070312]
+        border-r border-purple-500/10
+        flex flex-col
+        transition-transform duration-300
+        overflow-hidden
+    "
+>
+
+    <!-- GLOW -->
+    <div class="absolute inset-0 bg-purple-500/[0.02] pointer-events-none"></div>
+
+    <!-- HEADER -->
+    <div class="relative px-6 py-7 border-b border-purple-500/10">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+
+                <h1 class="text-3xl font-black bg-gradient-to-r from-purple-300 to-fuchsia-400 bg-clip-text text-transparent">
+                    Velocity
+                </h1>
+
+                <p class="text-xs text-purple-300/40 mt-1 tracking-wide">
+                    HIGH PERFORMANCE WORKSPACE
+                </p>
+
+            </div>
+
+            <!-- CLOSE -->
             <button
                 onclick="closeSidebar()"
-                class="md:hidden text-purple-300 text-2xl"
+                class="md:hidden w-10 h-10 rounded-xl bg-[#140a24] border border-purple-500/10 text-purple-300 flex items-center justify-center"
             >
-                x
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12" />
+
+                </svg>
+
             </button>
 
         </div>
 
-        <!-- NAV -->
-        <nav class="space-y-3 flex-1">
+    </div>
 
-            <a href="/dashboard"
-            class="block px-4 py-3 rounded-xl transition
-            {% if request.path == '/dashboard' %}
-                    bg-purple-600/20 border border-purple-500/20
-            {% else %}
-                    hover:bg-slate-800
-            {% endif %}
-            ">
-                Dashboard
-            </a>
+    <!-- NAVIGATION -->
+    <nav class="relative flex-1 px-4 py-6 space-y-2 overflow-y-auto">
 
-            <a href="/projects"
-            class="block px-4 py-3 rounded-xl transition
-            {% if request.path == '/projects' %}
-                    bg-purple-600/20 border border-purple-500/20
-            {% else %}
-                    hover:bg-slate-800
-            {% endif %}
-            ">
-                My Projects
-            </a>
+        <!-- DASHBOARD -->
+        <a href="/dashboard"
+           class="
+                group flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300
 
-            <a href="/tasks"
-            class="block px-4 py-3 rounded-xl transition
-            {% if request.path == '/tasks' %}
-                    bg-purple-600/20 border border-purple-500/20
-            {% else %}
-                    hover:bg-slate-800
-            {% endif %}
-            ">
-                My Tasks
-            </a>
+                {% if request.path == '/dashboard' %}
+                    bg-gradient-to-r from-purple-500/20 to-fuchsia-500/10
+                    border border-purple-500/20
+                    shadow-lg shadow-purple-500/10
+                {% else %}
+                    hover:bg-[#140a24]
+                    border border-transparent
+                {% endif %}
+           ">
 
-        </nav>
+            <!-- ICON -->
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-6 h-6 text-purple-300"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
 
-        <!-- FOOTER -->
-        <div class="pt-6 border-t border-purple-500/20">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 12l2-2m0 0l7-7 7 7m-9 2v8m4-8v8m5-10l2 2" />
 
-            <a href="/logout"
-            class="block text-center bg-red-500/20 hover:bg-red-500/30 text-red-300 py-3 rounded-xl transition">
-                Logout
-            </a>
+            </svg>
+
+            <div>
+
+                <div class="font-semibold text-white">
+                    Dashboard
+                </div>
+
+                <div class="text-xs text-purple-300/40">
+                    Workspace overview
+                </div>
+
+            </div>
+
+        </a>
+
+        <!-- PROJECTS -->
+        <a href="/projects"
+           class="
+                group flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300
+
+                {% if request.path == '/projects' %}
+                    bg-gradient-to-r from-purple-500/20 to-fuchsia-500/10
+                    border border-purple-500/20
+                    shadow-lg shadow-purple-500/10
+                {% else %}
+                    hover:bg-[#140a24]
+                    border border-transparent
+                {% endif %}
+           ">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-6 h-6 text-purple-300"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 7h5l2 2h11v8a2 2 0 01-2 2H3z" />
+
+            </svg>
+
+            <div>
+
+                <div class="font-semibold text-white">
+                    My Projects
+                </div>
+
+                <div class="text-xs text-purple-300/40">
+                    Manage your workspace
+                </div>
+
+            </div>
+
+        </a>
+
+        <!-- TASKS -->
+        <a href="/tasks"
+           class="
+                group flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300
+
+                {% if request.path == '/tasks' %}
+                    bg-gradient-to-r from-purple-500/20 to-fuchsia-500/10
+                    border border-purple-500/20
+                    shadow-lg shadow-purple-500/10
+                {% else %}
+                    hover:bg-[#140a24]
+                    border border-transparent
+                {% endif %}
+           ">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-6 h-6 text-purple-300"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m5 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+            </svg>
+
+            <div>
+
+                <div class="font-semibold text-white">
+                    My Tasks
+                </div>
+
+                <div class="text-xs text-purple-300/40">
+                    Track deadlines
+                </div>
+
+            </div>
+
+        </a>
+
+    </nav>
+
+    <!-- FOOTER -->
+    <div class="relative p-4 border-t border-purple-500/10">
+
+        <!-- USER -->
+        <div class="flex items-center gap-4 mb-4 px-2">
+
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center font-black text-white shadow-lg shadow-purple-500/20">
+
+                {{ current_user.username[0]|upper }}
+
+            </div>
+
+            <div class="min-w-0">
+
+                <div class="font-semibold text-white truncate">
+                    {{ current_user.username }}
+                </div>
+
+                <div class="text-xs text-purple-300/40 truncate">
+                    Active Workspace
+                </div>
+
+            </div>
 
         </div>
 
-    </aside>
+        <!-- LOGOUT -->
+        <a href="/logout"
+           class="flex items-center justify-center gap-3 w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/10 hover:border-red-500/20 text-red-300 py-3 rounded-2xl transition-all duration-300 font-semibold">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-5 h-5"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V7m-6 14h6a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+
+            </svg>
+
+            Logout
+
+        </a>
+
+    </div>
+
+</aside>
+
+<!-- SIDEBAR SCRIPT -->
+<script>
+
+function toggleSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("-translate-x-full");
+
+    document
+        .getElementById("sidebarOverlay")
+        .classList.toggle("hidden");
+}
+
+function closeSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList.add("-translate-x-full");
+
+    document
+        .getElementById("sidebarOverlay")
+        .classList.add("hidden");
+}
+
+</script>

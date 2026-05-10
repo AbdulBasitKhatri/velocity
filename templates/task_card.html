@@ -1,0 +1,62 @@
+{% macro render_task_card(tasks, now, current_user, project) %}
+<div class="space-y-4">
+    {% for task in tasks %}
+        {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
+        {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
+
+        <div class="overflow-hidden group bg-purple-500/5 border border-purple-500/10 hover:border-purple-500/30 rounded-3xl p-4 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
+            
+            <!-- HEADER -->
+            <div class="flex items-start justify-between mb-3">
+                
+                <h3 class="font-semibold text-lg text-purple-100">{{ task.title }}</h3>
+                
+                <!-- RIGHT SIDE (Actions & Badges) -->
+                <div class="flex items-start gap-3">
+                    {% if current_user.id == task.created_by or current_user.id == project.owner_id %}
+                    <div class="hidden group-hover:flex items-center gap-2">
+                        <button onclick="openEditTaskModal({{ task.id }}, `{{ task.title|escape }}`, `{{ task.description|default('', true)|escape }}`, `{{ task.priority }}`, `{{ task.assignee_id or '' }}`, `{{ task.start_date.strftime('%Y-%m-%dT%H:%M') if task.start_date else '' }}`, `{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '' }}`)" class="text-purple-300 hover:text-white transition">
+                            <i data-feather="edit-2" class="w-4 h-4"></i>
+                        </button>
+                        <form method="POST" action="/tasks/{{ task.id }}/delete" onsubmit="return confirm('Delete this task?')">
+                            <button type="submit" class="text-red-400 hover:text-red-300 transition">
+                                <i data-feather="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                    
+                    {% if task.status == 'done' %}
+                        <span class="text-xs uppercase bg-green-500/20 text-green-300 px-2 py-1 rounded-md">Done</span>
+                    {% elif is_overdue %}
+                        <span class="text-xs uppercase bg-red-500/20 text-red-300 px-2 py-1 rounded-md">Overdue</span>
+                    {% elif is_due_soon %}
+                        <span class="text-xs uppercase bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-md">Due Soon</span>
+                    {% endif %}
+
+                    <span class="text-xs px-2 py-1 uppercase rounded-md 
+                        {% if task.priority == 'high' %} bg-red-500/20 text-red-300
+                        {% elif task.priority == 'medium' %} bg-yellow-500/20 text-yellow-300
+                        {% else %} bg-green-500/20 text-green-300 {% endif %}">
+                        {{ task.priority }}
+                    </span>
+                </div>
+            </div>
+            <div class="text-xs text-purple-300/50">
+                Start: {{ task.start_date.strftime('%d %b %Y %H:%M') if task.start_date else 'Not set' }}
+                <span class="mx-1">→</span>
+                Due: {{ task.due_date.strftime('%d %b %Y %H:%M') if task.due_date else 'Not set' }}
+            </div>
+            <hr class="my-3 border-t border-purple-500/10">
+            <!-- DESCRIPTION -->
+            <p class="text-sm text-purple-300/70 mb-4">{{ task.description or "No description." }}</p>
+
+            <!-- FOOTER -->
+            <div class="flex items-center justify-end gap-2 text-sm">
+                <i data-feather="user" class="w-4 h-4 text-purple-400"></i>
+                <span class="text-purple-400">{{ task.assignee.username if task.assignee else 'Unassigned' }}</span>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endmacro %}

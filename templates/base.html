@@ -22,20 +22,24 @@
         
         function toggleSidebar() {
 
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
+            document
+                .getElementById("sidebar")
+                .classList.toggle("-translate-x-full");
 
-            sidebar.style.left = '0';
-            overlay.classList.remove('hidden');
+            document
+                .getElementById("sidebarOverlay")
+                .classList.toggle("hidden");
         }
 
         function closeSidebar() {
 
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
+            document
+                .getElementById("sidebar")
+                .classList.add("-translate-x-full");
 
-            sidebar.style.left = '-300px';
-            overlay.classList.add('hidden');
+            document
+                .getElementById("sidebarOverlay")
+                .classList.add("hidden");
         }
     </script>
 </body>

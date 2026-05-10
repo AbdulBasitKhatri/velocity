@@ -4,116 +4,215 @@
 
 {% block content %}
 
-<div class="w-full min-h-screen flex bg-slate-950 text-purple-100">
+<div class="flex min-h-screen bg-[#070312] text-white overflow-hidden">
 
     {% include "sidebar.html" %}
 
-    <!-- Main Content -->
-    <main class="min-h-screen bg-slate-950 text-purple-100 p-6 pt-20 md:pt-6 flex-1 overflow-y-auto">
+    <!-- MAIN -->
+    <main class="flex-1 p-4 md:p-8 pt-20 md:pt-6 md:ml-72 overflow-y-auto">
 
-        <!-- Topbar -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+        <!-- TOPBAR -->
+        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6 mb-8">
 
-            <div>
-                <h2 class="text-4xl font-bold text-purple-300">
-                    Welcome back,
-                    <span class="text-purple-400">
-                        {{ current_user.username }}
-                    </span>
-                </h2>
+            <!-- SEARCH -->
+            <!-- <div class="flex-1">
 
-                <p class="text-purple-300/60 mt-2">
-                    Manage your projects and tasks efficiently.
-                </p>
+                <div class="relative max-w-xl">
+
+                    <input
+                        type="text"
+                        placeholder="Search tasks or projects..."
+                        class="w-full bg-[#120822] border border-purple-500/10 rounded-2xl px-5 py-4 pl-12 outline-none focus:border-purple-500/40 transition text-sm"
+                    >
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-purple-300/50"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+
+                </div>
+
+            </div> -->
+
+            <!-- ACTIONS -->
+            <div class="flex items-center w-full justify-end gap-4 p-1">
+
+                <a href="/create-project"
+                   class="bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:opacity-90 px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg shadow-purple-500/20 flex items-center gap-2 transition">
+                    <i data-feather="plus-circle" class="w-6 h-6"></i><span>Create Project</span>
+                </a>
+
+                <!-- PROFILE -->
+                <div class="w-11 h-11 rounded-full border border-purple-500/20 bg-[#120822] flex items-center justify-center text-purple-300 font-bold">
+                    {{ current_user.username[0]|upper }}
+                </div>
+
             </div>
-
-            <a href="/create-project"
-            class="mt-6 md:mt-0 inline-block bg-purple-600 hover:bg-purple-500 px-6 py-3 rounded-xl font-semibold shadow-lg shadow-purple-500/20 transition">
-                + New Project
-            </a>
 
         </div>
 
-        <!-- Stats -->
+        <!-- HERO -->
+        <div class="mb-10">
+
+            <h1 class="text-4xl md:text-5xl font-black leading-tight">
+
+                Welcome back,
+                <span class="bg-gradient-to-r from-purple-300 to-fuchsia-400 bg-clip-text text-transparent">
+                    {{ current_user.username }}
+                </span>
+
+            </h1>
+
+            <p class="text-purple-200/50 mt-3 text-lg">
+                Manage your projects and tasks efficiently.
+            </p>
+
+        </div>
+
+        <!-- STATS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-            <div class="glass-card rounded-2xl p-6">
-                <p class="text-purple-300/70 text-sm">Total Projects</p>
-                <h3 class="text-4xl font-bold mt-2">
+            <!-- CARD -->
+            <div class="relative overflow-hidden rounded-3xl border border-purple-500/10 bg-[#120822] p-6">
+
+                <div class="absolute -right-4 -top-4 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl"></div>
+
+                <div class="text-xs uppercase tracking-[0.2em] text-purple-300/40 mb-4">
+                    Total Projects
+                </div>
+
+                <div class="text-5xl font-black mb-4">
                     {{ total_projects }}
-                </h3>
+                </div>
+
+                <div class="text-sm text-purple-300/50">
+                    Ready to start new work
+                </div>
+
             </div>
 
-            <div class="glass-card rounded-2xl p-6">
-                <p class="text-purple-300/70 text-sm">Tasks Completed</p>
-                <h3 class="text-4xl font-bold mt-2">
+            <!-- CARD -->
+            <div class="relative overflow-hidden rounded-3xl border border-yellow-500/10 bg-[#120822] p-6">
+
+                <div class="absolute -right-4 -top-4 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl"></div>
+
+                <div class="text-xs uppercase tracking-[0.2em] text-yellow-300/40 mb-4">
+                    Tasks Completed
+                </div>
+
+                <div class="text-5xl font-black mb-4">
                     {{ completed_tasks }}
-                </h3>
+                </div>
+
+                <div class="text-sm text-yellow-300/50">
+                    Keep up the momentum
+                </div>
+
             </div>
 
-            <div class="glass-card rounded-2xl p-6">
-                <p class="text-purple-300/70 text-sm">Pending Tasks</p>
-                <h3 class="text-4xl font-bold mt-2">
+            <!-- CARD -->
+            <div class="relative overflow-hidden rounded-3xl border border-red-500/10 bg-[#120822] p-6">
+
+                <div class="absolute -right-4 -top-4 w-32 h-32 bg-red-500/5 rounded-full blur-2xl"></div>
+
+                <div class="text-xs uppercase tracking-[0.2em] text-red-300/40 mb-4">
+                    Pending Tasks
+                </div>
+
+                <div class="text-5xl font-black mb-4">
                     {{ pending_tasks }}
-                </h3>
+                </div>
+
+                <div class="text-sm text-red-300/50">
+                    No urgent tasks due
+                </div>
+
             </div>
 
         </div>
 
-        <!-- Projects Section -->
-        <div class="mb-12">
+        <!-- PROJECTS -->
+        <div class="rounded-[2rem] border border-purple-500/10 bg-[#0d0618] p-6 md:p-8">
 
-            <div class="flex items-center justify-between mb-6">
+            <!-- HEADER -->
+            <div class="flex items-center justify-between mb-8">
 
-                <h3 class="text-2xl font-bold text-purple-300">
-                    Your Projects
-                </h3>
+                <div class="flex items-center gap-3">
+
+                    <div class="w-3 h-3 rounded-full bg-purple-400"></div>
+
+                    <h2 class="text-2xl font-bold text-purple-100">
+                        Your Projects
+                    </h2>
+
+                </div>
 
                 <a href="/projects"
-                   class="text-purple-400 hover:text-purple-300 transition">
-                    View All
+                   class="text-purple-300/60 hover:text-purple-300 transition text-sm">
+                    View All →
                 </a>
 
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {% if projects %}
+
+            <!-- GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
 
                 {% for project in projects %}
 
-                <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition duration-300">
+                <div class="group relative rounded-3xl border border-purple-500/10 bg-[#140a24] p-6 hover:border-purple-500/30 transition duration-300 hover:-translate-y-1">
 
-                    <div class="flex items-start justify-between mb-4">
+                    <!-- GLOW -->
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-purple-500/5 blur-3xl rounded-3xl"></div>
 
-                        <div>
-                            <h4 class="text-xl font-bold text-purple-200">
-                                {{ project.name }}
-                            </h4>
+                    <div class="relative">
 
-                            <p class="text-sm text-purple-300/60 mt-1">
-                                Created {{ project.created_at.strftime('%d %b %Y') }}
-                            </p>
+                        <!-- TOP -->
+                        <div class="flex items-start justify-between mb-5">
+
+                            <div>
+
+                                <h3 class="text-2xl font-bold text-purple-100">
+                                    {{ project.name }}
+                                </h3>
+
+                                <p class="text-sm text-purple-300/40 mt-2">
+                                    Created {{ project.created_at.strftime('%d %b %Y') }}
+                                </p>
+
+                            </div>
+
+                            <span class="bg-purple-500/10 text-purple-300 text-xs px-3 py-1 rounded-full border border-purple-500/10">
+                                Active
+                            </span>
+
                         </div>
 
-                        <span class="bg-purple-500/20 text-purple-300 text-xs px-3 py-1 rounded-full">
-                            Active
-                        </span>
+                        <!-- DESCRIPTION -->
+                        <p class="text-purple-200/60 text-sm leading-relaxed mb-6 line-clamp-3">
+                            {{ project.description or "No description provided." }}
+                        </p>
 
-                    </div>
+                        <!-- FOOTER -->
+                        <div class="flex items-center justify-between">
 
-                    <p class="text-purple-200/70 text-sm mb-6 line-clamp-3">
-                        {{ project.description or "No description provided." }}
-                    </p>
+                            <div class="text-sm text-purple-300/40">
+                                {{ project.tasks|length }} Tasks
+                            </div>
 
-                    <div class="flex items-center justify-between">
+                            <a href="/projects/{{ project.id }}"
+                               class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm font-semibold transition">
+                                Open
+                            </a>
 
-                        <div class="text-sm text-purple-300/60">
-                            {{ project.tasks|length }} Tasks
                         </div>
-
-                        <a href="/projects/{{ project.id }}"
-                           class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg text-sm font-medium transition">
-                            Open
-                        </a>
 
                     </div>
 
@@ -123,85 +222,46 @@
 
             </div>
 
-        </div>
+            {% else %}
 
-        <!-- Recent Tasks -->
-        <!-- <div>
+            <!-- EMPTY STATE -->
+            <div class="py-20 flex flex-col items-center justify-center text-center">
 
-            <h3 class="text-2xl font-bold text-purple-300 mb-6">
-                Recent Tasks
-            </h3>
+                <div class="w-40 h-40 rounded-full bg-purple-500/5 border border-purple-500/10 flex items-center justify-center mb-8">
 
-            <div class="glass-card rounded-2xl overflow-hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="w-20 h-20 text-purple-300/20"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
 
-                <table class="w-full">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="1.5"
+                              d="M3 7l9-4 9 4m-9-4v18m0 0l-9-4m9 4l9-4"/>
 
-                    <thead class="bg-slate-900/50">
+                    </svg>
 
-                        <tr class="text-left text-purple-300/70 text-sm">
+                </div>
 
-                            <th class="p-4">Task</th>
-                            <th class="p-4">Status</th>
-                            <th class="p-4">Priority</th>
-                            <th class="p-4">Due Date</th>
+                <h3 class="text-2xl font-bold text-purple-100 mb-3">
+                    No projects yet
+                </h3>
 
-                        </tr>
+                <p class="text-purple-300/40 mb-8 max-w-md">
+                    Start your first project and organize your workflow with Velocity.
+                </p>
 
-                    </thead>
-
-                    <tbody>
-
-                       {% for task in recent_tasks %}
-
-                            <tr class="border-t border-purple-500/10 hover:bg-slate-900/30 transition">
-
-                                <td class="p-4">
-                                    {{ task.title }}
-                                </td>
-
-                                <td class="p-4">
-
-                                    <span class="
-                                        px-3 py-1 rounded-full text-xs
-
-                                        {% if task.status == 'done' %}
-                                            bg-green-500/20 text-green-300
-                                        {% elif task.status == 'in_progress' %}
-                                            bg-yellow-500/20 text-yellow-300
-                                        {% else %}
-                                            bg-purple-500/20 text-purple-300
-                                        {% endif %}
-                                    ">
-
-                                        {{ task.status.replace('_', ' ').title() }}
-
-                                    </span>
-
-                                </td>
-
-                                <td class="p-4">
-                                    {{ task.priority.title() }}
-                                </td>
-
-                                <td class="p-4 text-purple-300/70">
-                                    {% if task.due_date %}
-                                        {{ task.due_date.strftime('%d %b %Y') }}
-                                    {% else %}
-                                        No deadline
-                                    {% endif %}
-                                </td>
-
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
+                <a href="/create-project"
+                   class="bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:opacity-90 px-8 py-4 rounded-2xl font-semibold transition shadow-lg shadow-purple-500/20">
+                    Start Your First Project
+                </a>
 
             </div>
 
-        </div> -->
+            {% endif %}
+
+        </div>
 
     </main>
 

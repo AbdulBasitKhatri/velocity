@@ -3,278 +3,136 @@
 {% block title %}Tasks{% endblock %}
 
 {% block content %}
+{% macro render_task_item(task, color) %}
+<div class="group bg-purple-500/5 border border-{{ color }}-500/20 hover:border-{{ color }}-500/40 rounded-3xl p-5 transition">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex-1">
+            <div class="flex items-center gap-3 mb-1">
+                <h3 class="text-xl font-semibold text-purple-100 group-hover:text-white transition">{{ task.title }}</h3>
+                <span class="text-[10px] uppercase tracking-wider bg-{{ color }}-500/10 text-{{ color }}-300 px-2 py-0.5 rounded border border-{{ color }}-500/20">
+                    {{ task.priority }}
+                </span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-purple-300/50">
+                <i data-feather="folder" class="w-3.5 h-3.5"></i>
+                {{ task.project.name }}
+            </div>
+        </div>
 
-<div class="flex min-h-screen bg-slate-950">
-
+        <div class="flex flex-col md:items-end gap-3">
+            {% if task.due_date %}
+            <div class="text-sm font-medium text-{{ color }}-300 flex items-center gap-1.5">
+                <i data-feather="calendar" class="w-4 h-4"></i>
+                Due {{ task.due_date.strftime('%d %b %Y %H:%M') }}
+            </div>
+            {% endif %}
+            
+            <a href="/projects/{{ task.project.id }}" class="inline-flex items-center gap-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-200 px-4 py-2 rounded-xl text-sm transition self-start md:self-auto border border-purple-500/10">
+                View Project
+                <i data-feather="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+        </div>
+    </div>
+    
+    {% if task.description %}
+    <p class="text-sm text-purple-300/70 mt-4 line-clamp-2 border-t border-purple-500/5 pt-4">
+        {{ task.description }}
+    </p>
+    {% endif %}
+</div>
+{% endmacro %}
+<div class="flex min-h-screen bg-[#070312]">
     {% include "sidebar.html" %}
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 text-purple-100 p-6 pt-20 md:pt-6 overflow-x-hidden">
+    <main class="flex-1 text-purple-100 p-6 pt-20 md:pt-6 md:ml-72 overflow-x-hidden">
 
         <!-- Header -->
         <div class="mb-10">
-
-            <a href="/dashboard"
-               class="text-purple-400 hover:text-purple-300 text-sm">
-                ← Back to Dashboard
+            <a href="/dashboard" class="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm transition">
+                <i data-feather="arrow-left" class="w-4 h-4"></i>
+                Back to Dashboard
             </a>
 
-            <h1 class="text-4xl font-bold text-purple-300 mt-3">
-                My Tasks
-            </h1>
-
-            <p class="text-purple-300/60 mt-2">
-                Tasks assigned to you grouped by deadlines.
-            </p>
-
+            <h1 class="text-4xl font-bold text-purple-100 mt-3">My Tasks</h1>
+            <p class="text-purple-300/60 mt-2">Tasks assigned to you grouped by deadlines.</p>
         </div>
 
-        <!-- OVERDUE -->
-        {% if overdue_tasks %}
-
-        <section class="mb-10">
-
-            <h2 class="text-2xl font-bold text-red-300 mb-5">
-                Overdue
-            </h2>
-
-            <div class="space-y-4">
-
-                {% for task in overdue_tasks %}
-
-                <div class="bg-slate-900 border border-red-500/20 rounded-2xl p-5">
-
-                    <div class="flex items-start justify-between gap-4 mb-3">
-
-                        <div>
-
-                            <h3 class="text-xl font-semibold">
-                                {{ task.title }}
-                            </h3>
-
-                            <p class="text-sm text-purple-300/50 mt-1">
-                                {{ task.project.name }}
-                            </p>
-
-                        </div>
-
-                        <span class="text-xs bg-red-500/20 text-red-300 px-3 py-1 rounded-full whitespace-nowrap">
-                            {{ task.priority }}
-                        </span>
-
-                    </div>
-
-                    <p class="text-purple-300/70 mb-4">
-                        {{ task.description or "No description." }}
-                    </p>
-
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-                        <div class="text-sm text-red-300">
-                            Due {{ task.due_date.strftime('%d %b %Y %H:%M') }}
-                        </div>
-
-                        <a href="/projects/{{ task.project.id }}"
-                           class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm transition text-center">
-                            View Project
-                        </a>
-
-                    </div>
-
+        {# Check if there are any tasks at all #}
+        {% if not overdue_tasks and not today_tasks and not upcoming_tasks and not no_due_tasks %}
+            <!-- EMPTY STATE -->
+            <div class="flex flex-col items-center justify-center py-20 px-4 text-center bg-purple-500/5 border border-purple-500/10 rounded-3xl">
+                <div class="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mb-6">
+                    <i data-feather="check-circle" class="w-10 h-10 text-purple-400"></i>
                 </div>
-
-                {% endfor %}
-
+                <h3 class="text-2xl font-semibold text-purple-100 mb-2">You're all caught up!</h3>
+                <p class="text-purple-300/60 max-w-sm mb-8">
+                    No pending tasks found. Take a break or check your projects for new assignments.
+                </p>
+                <a href="/dashboard" class="bg-gradient-to-r from-purple-500 to-fuchsia-500 px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg shadow-purple-500/20 transition hover:opacity-90">
+                    Back to Dashboard
+                </a>
             </div>
+        {% else %}
 
-        </section>
+            {# OVERDUE #}
+            {% if overdue_tasks %}
+            <section class="mb-12">
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-red-400 mb-6">
+                    <i data-feather="alert-circle" class="w-6 h-6"></i> Overdue
+                </h2>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for task in overdue_tasks %}
+                        {{ render_task_item(task, 'red') }}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# TODAY #}
+            {% if today_tasks %}
+            <section class="mb-12">
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-yellow-400 mb-6">
+                    <i data-feather="clock" class="w-6 h-6"></i> Due Today
+                </h2>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for task in today_tasks %}
+                        {{ render_task_item(task, 'yellow') }}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# UPCOMING #}
+            {% if upcoming_tasks %}
+            <section class="mb-12">
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-green-400 mb-6">
+                    <i data-feather="calendar" class="w-6 h-6"></i> Upcoming
+                </h2>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for task in upcoming_tasks %}
+                        {{ render_task_item(task, 'green') }}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# NO DUE DATE #}
+            {% if no_due_tasks %}
+            <section>
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-purple-300 mb-6">
+                    <i data-feather="inbox" class="w-6 h-6"></i> No Due Date
+                </h2>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for task in no_due_tasks %}
+                        {{ render_task_item(task, 'purple') }}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
 
         {% endif %}
-
-        <!-- TODAY -->
-        {% if today_tasks %}
-
-        <section class="mb-10">
-
-            <h2 class="text-2xl font-bold text-yellow-300 mb-5">
-                Due Today
-            </h2>
-
-            <div class="space-y-4">
-
-                {% for task in today_tasks %}
-
-                <div class="bg-slate-900 border border-yellow-500/20 rounded-2xl p-5">
-
-                    <div class="flex items-start justify-between gap-4 mb-3">
-
-                        <div>
-
-                            <h3 class="text-xl font-semibold">
-                                {{ task.title }}
-                            </h3>
-
-                            <p class="text-sm text-purple-300/50 mt-1">
-                                {{ task.project.name }}
-                            </p>
-
-                        </div>
-
-                        <span class="text-xs bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full whitespace-nowrap">
-                            {{ task.priority }}
-                        </span>
-
-                    </div>
-
-                    <p class="text-purple-300/70 mb-4">
-                        {{ task.description or "No description." }}
-                    </p>
-
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-                        <div class="text-sm text-yellow-300">
-                            Due {{ task.due_date.strftime('%d %b %Y %H:%M') }}
-                        </div>
-
-                        <a href="/projects/{{ task.project.id }}"
-                           class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm transition text-center">
-                            View Project
-                        </a>
-
-                    </div>
-
-                </div>
-
-                {% endfor %}
-
-            </div>
-
-        </section>
-
-        {% endif %}
-
-        <!-- UPCOMING -->
-        {% if upcoming_tasks %}
-
-        <section class="mb-10">
-
-            <h2 class="text-2xl font-bold text-green-300 mb-5">
-                Upcoming
-            </h2>
-
-            <div class="space-y-4">
-
-                {% for task in upcoming_tasks %}
-
-                <div class="bg-slate-900 border border-green-500/20 rounded-2xl p-5">
-
-                    <div class="flex items-start justify-between gap-4 mb-3">
-
-                        <div>
-
-                            <h3 class="text-xl font-semibold">
-                                {{ task.title }}
-                            </h3>
-
-                            <p class="text-sm text-purple-300/50 mt-1">
-                                {{ task.project.name }}
-                            </p>
-
-                        </div>
-
-                        <span class="text-xs bg-green-500/20 text-green-300 px-3 py-1 rounded-full whitespace-nowrap">
-                            {{ task.priority }}
-                        </span>
-
-                    </div>
-
-                    <p class="text-purple-300/70 mb-4">
-                        {{ task.description or "No description." }}
-                    </p>
-
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-                        <div class="text-sm text-green-300">
-                            Due {{ task.due_date.strftime('%d %b %Y %H:%M') }}
-                        </div>
-
-                        <a href="/projects/{{ task.project.id }}"
-                           class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm transition text-center">
-                            View Project
-                        </a>
-
-                    </div>
-
-                </div>
-
-                {% endfor %}
-
-            </div>
-
-        </section>
-
-        {% endif %}
-
-        <!-- NO DUE DATE -->
-        {% if no_due_tasks %}
-
-        <section>
-
-            <h2 class="text-2xl font-bold text-purple-300 mb-5">
-                No Due Date
-            </h2>
-
-            <div class="space-y-4">
-
-                {% for task in no_due_tasks %}
-
-                <div class="bg-slate-900 border border-purple-500/20 rounded-2xl p-5">
-
-                    <div class="flex items-start justify-between gap-4 mb-3">
-
-                        <div>
-
-                            <h3 class="text-xl font-semibold">
-                                {{ task.title }}
-                            </h3>
-
-                            <p class="text-sm text-purple-300/50 mt-1">
-                                {{ task.project.name }}
-                            </p>
-
-                        </div>
-
-                        <span class="text-xs bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full whitespace-nowrap">
-                            {{ task.priority }}
-                        </span>
-
-                    </div>
-
-                    <p class="text-purple-300/70 mb-4">
-                        {{ task.description or "No description." }}
-                    </p>
-
-                    <div class="flex justify-end">
-
-                        <a href="/projects/{{ task.project.id }}"
-                           class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm transition">
-                            View Project
-                        </a>
-
-                    </div>
-
-                </div>
-
-                {% endfor %}
-
-            </div>
-
-        </section>
-
-        {% endif %}
-
     </main>
-
 </div>
 
 {% endblock %}

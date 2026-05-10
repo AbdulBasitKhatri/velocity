@@ -3,8 +3,11 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block content %}
+<div class="flex min-h-screen bg-[#070312]">
+    {% include "sidebar.html" %}
 
-<div class="min-h-screen bg-slate-950 text-purple-100 p-6">
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 text-purple-100 p-6 pt-20 md:pt-6 md:ml-72 overflow-x-hidden">
 
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
@@ -33,14 +36,15 @@
                 onclick="openMembersDrawer()"
                 class="bg-slate-900 hover:bg-slate-800 border border-purple-500/20 px-5 py-3 rounded-xl transition"
             >
-                Team Members
+                <i data-feather="user" class="w-6 h-6"></i>
             </button>
 
             <button
                 onclick="openTaskDrawer()"
-                class="bg-purple-600 hover:bg-purple-500 px-5 py-3 rounded-xl font-semibold transition"
+                class="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:opacity-90 px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg shadow-purple-500/20 transition"
             >
-                + Create Task
+                <i data-feather="plus-circle" class="w-6 h-6"></i>
+                <span>Create Task</span>
             </button>
 
         </div>
@@ -413,490 +417,50 @@
         class="fixed inset-0 bg-black/50 z-40 hidden"
     ></div>
     <!-- Kanban Board -->
+    {% import 'task_card.html' as task_utils %}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <!-- TODO -->
-        <div class="glass-card rounded-2xl p-5" ondragover="allowDrop(event)"
-     ondrop="drop(event, 'todo')">
-
-            <div class="flex items-center justify-between mb-6">
-
+        <div class="glass-card rounded-2xl p-5 bg-[#0d0618]" ondragover="allowDrop(event)" ondrop="drop(event, 'todo')">
+            <div class="flex items-center gap-3 mb-6">
                 <h2 class="text-xl font-bold text-purple-300">
                     Todo
                 </h2>
-
-                <span class="bg-purple-500/20 px-3 py-1 rounded-full text-sm">
+                <span class="bg-[#222] px-3 py-1 rounded-full text-sm">
                     {{ todo_tasks|length }}
                 </span>
-
             </div>
-
-            <div class="space-y-4">
-
-                {% for task in todo_tasks %}
-                 
-                    {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
-                    {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
-
-                    <div class="group bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
-
-                        <!-- HEADER -->
-                        <div class="flex items-start justify-between mb-3">
-
-                            <!-- TITLE + BADGES -->
-                            <div class="space-y-1">
-
-                                <div class="flex items-center gap-2">
-
-                                    <h3 class="font-semibold text-lg text-purple-100">
-                                        {{ task.title }}
-                                    </h3>
-
-                                    {% if task.status == 'done' %}
-                                        <span class="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
-                                            Done
-                                        </span>
-
-                                    {% elif is_overdue %}
-                                        <span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
-                                            Overdue
-                                        </span>
-
-                                    {% elif is_due_soon %}
-                                        <span class="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
-                                            Due Soon
-                                        </span>
-                                    {% endif %}
-
-                                </div>
-
-                                <!-- TIME RANGE -->
-                                <div class="text-xs text-purple-300/50">
-
-                                    {% if task.start_date %}
-                                        Start: {{ task.start_date.strftime('%d %b %Y %H:%M') }}
-                                    {% else %}
-                                        Start: Not set
-                                    {% endif %}
-
-                                    <span class="mx-1">→</span>
-
-                                    {% if task.due_date %}
-                                        Due: {{ task.due_date.strftime('%d %b %Y %H:%M') }}
-                                    {% else %}
-                                        Due: Not set
-                                    {% endif %}
-
-                                </div>
-
-                            </div>
-
-                            <!-- RIGHT SIDE -->
-                            <div class="flex items-start gap-3">
-
-                                <!-- ACTIONS -->
-                                {% if current_user.id == task.created_by or current_user.id == project.owner_id %}
-                                <div class="hidden group-hover:flex items-center gap-2">
-
-                                    <!-- EDIT -->
-                                    <button
-                                        onclick="openEditTaskModal(
-                                            {{ task.id }},
-                                            `{{ task.title|escape }}`,
-                                            `{{ task.description|default('', true)|escape }}`,
-                                            `{{ task.priority }}`,
-                                            `{{ task.assignee_id or '' }}`,
-                                            `{{ task.start_date.strftime('%Y-%m-%dT%H:%M') if task.start_date else '' }}`,
-                                            `{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '' }}`
-                                        )"
-                                        class="text-purple-300 hover:text-white transition"
-                                    >
-                                        <i data-feather="edit-2" class="w-4 h-4"></i>
-                                    </button>
-
-                                    <!-- DELETE -->
-                                    <form
-                                        method="POST"
-                                        action="/tasks/{{ task.id }}/delete"
-                                        onsubmit="return confirm('Delete this task?')"
-                                    >
-                                        <button
-                                            type="submit"
-                                            class="text-red-400 hover:text-red-300 transition"
-                                        >
-                                            <i data-feather="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </form>
-
-                                </div>
-                                {% endif %}
-
-                                <!-- PRIORITY -->
-                                <span class="
-                                    text-xs px-2 py-1 rounded-full
-
-                                    {% if task.priority == 'high' %}
-                                        bg-red-500/20 text-red-300
-                                    {% elif task.priority == 'medium' %}
-                                        bg-yellow-500/20 text-yellow-300
-                                    {% else %}
-                                        bg-green-500/20 text-green-300
-                                    {% endif %}
-                                ">
-                                    {{ task.priority }}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        <!-- DESCRIPTION -->
-                        <p class="text-sm text-purple-300/70 mb-4">
-                            {{ task.description or "No description." }}
-                        </p>
-
-                        <!-- FOOTER -->
-                        <div class="flex items-center justify-between text-sm">
-
-                            <span class="text-purple-400">
-                                {% if task.assignee %}
-                                    {{ task.assignee.username }}
-                                {% else %}
-                                    Unassigned
-                                {% endif %}
-                            </span>
-
-                        </div>
-
-                    </div>
-                {% endfor %}
-
-            </div>
-
+            {{ task_utils.render_task_card(todo_tasks, now, current_user, project) }}
         </div>
 
         <!-- IN PROGRESS -->
-        <div class="glass-card rounded-2xl p-5" ondragover="allowDrop(event)"
-     ondrop="drop(event, 'in_progress')">
-
-            <div class="flex items-center justify-between mb-6">
-
+        <div class="glass-card rounded-2xl p-5 bg-[#0d0618]" ondragover="allowDrop(event)" ondrop="drop(event, 'in_progress')">
+            <div class="flex items-center gap-3 mb-6">
                 <h2 class="text-xl font-bold text-yellow-300">
                     In Progress
                 </h2>
-
-                <span class="bg-yellow-500/20 px-3 py-1 rounded-full text-sm">
+                <span class="bg-[#222] px-3 py-1 rounded-full text-sm">
                     {{ in_progress_tasks|length }}
                 </span>
-
             </div>
-
-            <div class="space-y-4">
-
-                {% for task in in_progress_tasks %}
-                 
-                    {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
-                    {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
-
-                    <div class="group bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
-
-                        <!-- HEADER -->
-                        <div class="flex items-start justify-between mb-3">
-
-                            <!-- TITLE + BADGES -->
-                            <div class="space-y-1">
-
-                                <div class="flex items-center gap-2">
-
-                                    <h3 class="font-semibold text-lg text-purple-100">
-                                        {{ task.title }}
-                                    </h3>
-
-                                    {% if task.status == 'done' %}
-                                        <span class="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
-                                            Done
-                                        </span>
-
-                                    {% elif is_overdue %}
-                                        <span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
-                                            Overdue
-                                        </span>
-
-                                    {% elif is_due_soon %}
-                                        <span class="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
-                                            Due Soon
-                                        </span>
-                                    {% endif %}
-
-                                </div>
-
-                                <!-- TIME RANGE -->
-                                <div class="text-xs text-purple-300/50">
-
-                                    {% if task.start_date %}
-                                        Start: {{ task.start_date.strftime('%d %b %Y %H:%M') }}
-                                    {% else %}
-                                        Start: Not set
-                                    {% endif %}
-
-                                    <span class="mx-1">→</span>
-
-                                    {% if task.due_date %}
-                                        Due: {{ task.due_date.strftime('%d %b %Y %H:%M') }}
-                                    {% else %}
-                                        Due: Not set
-                                    {% endif %}
-
-                                </div>
-
-                            </div>
-
-                            <!-- RIGHT SIDE -->
-                            <div class="flex items-start gap-3">
-
-                                <!-- ACTIONS -->
-                                {% if current_user.id == task.created_by or current_user.id == project.owner_id %}
-                                <div class="hidden group-hover:flex items-center gap-2">
-
-                                    <!-- EDIT -->
-                                    <button
-                                        onclick="openEditTaskModal(
-                                            {{ task.id }},
-                                            `{{ task.title|escape }}`,
-                                            `{{ task.description|default('', true)|escape }}`,
-                                            `{{ task.priority }}`,
-                                            `{{ task.assignee_id or '' }}`,
-                                            `{{ task.start_date.strftime('%Y-%m-%dT%H:%M') if task.start_date else '' }}`,
-                                            `{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '' }}`
-                                        )"
-                                        class="text-purple-300 hover:text-white transition"
-                                    >
-                                        <i data-feather="edit-2" class="w-4 h-4"></i>
-                                    </button>
-
-                                    <!-- DELETE -->
-                                    <form
-                                        method="POST"
-                                        action="/tasks/{{ task.id }}/delete"
-                                        onsubmit="return confirm('Delete this task?')"
-                                    >
-                                        <button
-                                            type="submit"
-                                            class="text-red-400 hover:text-red-300 transition"
-                                        >
-                                            <i data-feather="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </form>
-
-                                </div>
-                                {% endif %}
-
-                                <!-- PRIORITY -->
-                                <span class="
-                                    text-xs px-2 py-1 rounded-full
-
-                                    {% if task.priority == 'high' %}
-                                        bg-red-500/20 text-red-300
-                                    {% elif task.priority == 'medium' %}
-                                        bg-yellow-500/20 text-yellow-300
-                                    {% else %}
-                                        bg-green-500/20 text-green-300
-                                    {% endif %}
-                                ">
-                                    {{ task.priority }}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        <!-- DESCRIPTION -->
-                        <p class="text-sm text-purple-300/70 mb-4">
-                            {{ task.description or "No description." }}
-                        </p>
-
-                        <!-- FOOTER -->
-                        <div class="flex items-center justify-between text-sm">
-
-                            <span class="text-purple-400">
-                                {% if task.assignee %}
-                                    {{ task.assignee.username }}
-                                {% else %}
-                                    Unassigned
-                                {% endif %}
-                            </span>
-
-                        </div>
-
-                    </div>
-                {% endfor %}
-
-            </div>
-
+            {{ task_utils.render_task_card(in_progress_tasks, now, current_user, project) }}
         </div>
 
         <!-- DONE -->
-        <div class="glass-card rounded-2xl p-5" ondragover="allowDrop(event)"
-     ondrop="drop(event, 'done')">
-
-            <div class="flex items-center justify-between mb-6">
-
+        <div class="glass-card rounded-2xl p-5 bg-[#0d0618]" ondragover="allowDrop(event)" ondrop="drop(event, 'done')">
+            <div class="flex items-center gap-3 mb-6">
                 <h2 class="text-xl font-bold text-green-300">
                     Done
                 </h2>
-
-                <span class="bg-green-500/20 px-3 py-1 rounded-full text-sm">
+                <span class="bg-[#222] px-3 py-1 rounded-full text-sm">
                     {{ done_tasks|length }}
                 </span>
-
             </div>
-
-            <div class="space-y-4">
-
-                {% for task in done_tasks %}
-                 
-                    {% set is_overdue = task.due_date and task.due_date < now and task.status != 'done' %}
-                    {% set is_due_soon = task.due_date and not is_overdue and task.status != 'done' and (task.due_date - now).total_seconds() < 86400 %}
-
-                    <div class="group bg-slate-900/70 border border-purple-500/10 rounded-xl p-4 hover:border-purple-500/30 transition" draggable="true" ondragstart="drag(event)" data-task-id="{{ task.id }}">
-
-                        <!-- HEADER -->
-                        <div class="flex items-start justify-between mb-3">
-
-                            <!-- TITLE + BADGES -->
-                            <div class="space-y-1">
-
-                                <div class="flex items-center gap-2">
-
-                                    <h3 class="font-semibold text-lg text-purple-100">
-                                        {{ task.title }}
-                                    </h3>
-
-                                    {% if task.status == 'done' %}
-                                        <span class="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
-                                            Done
-                                        </span>
-
-                                    {% elif is_overdue %}
-                                        <span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded-full">
-                                            Overdue
-                                        </span>
-
-                                    {% elif is_due_soon %}
-                                        <span class="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
-                                            Due Soon
-                                        </span>
-                                    {% endif %}
-
-                                </div>
-
-                                <!-- TIME RANGE -->
-                                <div class="text-xs text-purple-300/50">
-
-                                    {% if task.start_date %}
-                                        Start: {{ task.start_date.strftime('%d %b %Y %H:%M') }}
-                                    {% else %}
-                                        Start: Not set
-                                    {% endif %}
-
-                                    <span class="mx-1">→</span>
-
-                                    {% if task.due_date %}
-                                        Due: {{ task.due_date.strftime('%d %b %Y %H:%M') }}
-                                    {% else %}
-                                        Due: Not set
-                                    {% endif %}
-
-                                </div>
-
-                            </div>
-
-                            <!-- RIGHT SIDE -->
-                            <div class="flex items-start gap-3">
-
-                                <!-- ACTIONS -->
-                                {% if current_user.id == task.created_by or current_user.id == project.owner_id %}
-                                <div class="hidden group-hover:flex items-center gap-2">
-
-                                    <!-- EDIT -->
-                                    <button
-                                        onclick="openEditTaskModal(
-                                            {{ task.id }},
-                                            `{{ task.title|escape }}`,
-                                            `{{ task.description|default('', true)|escape }}`,
-                                            `{{ task.priority }}`,
-                                            `{{ task.assignee_id or '' }}`,
-                                            `{{ task.start_date.strftime('%Y-%m-%dT%H:%M') if task.start_date else '' }}`,
-                                            `{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '' }}`
-                                        )"
-                                        class="text-purple-300 hover:text-white transition"
-                                    >
-                                        <i data-feather="edit-2" class="w-4 h-4"></i>
-                                    </button>
-
-                                    <!-- DELETE -->
-                                    <form
-                                        method="POST"
-                                        action="/tasks/{{ task.id }}/delete"
-                                        onsubmit="return confirm('Delete this task?')"
-                                    >
-                                        <button
-                                            type="submit"
-                                            class="text-red-400 hover:text-red-300 transition"
-                                        >
-                                            <i data-feather="trash-2" class="w-4 h-4"></i>
-                                        </button>
-                                    </form>
-
-                                </div>
-                                {% endif %}
-
-                                <!-- PRIORITY -->
-                                <span class="
-                                    text-xs px-2 py-1 rounded-full
-
-                                    {% if task.priority == 'high' %}
-                                        bg-red-500/20 text-red-300
-                                    {% elif task.priority == 'medium' %}
-                                        bg-yellow-500/20 text-yellow-300
-                                    {% else %}
-                                        bg-green-500/20 text-green-300
-                                    {% endif %}
-                                ">
-                                    {{ task.priority }}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        <!-- DESCRIPTION -->
-                        <p class="text-sm text-purple-300/70 mb-4">
-                            {{ task.description or "No description." }}
-                        </p>
-
-                        <!-- FOOTER -->
-                        <div class="flex items-center justify-between text-sm">
-
-                            <span class="text-purple-400">
-                                {% if task.assignee %}
-                                    {{ task.assignee.username }}
-                                {% else %}
-                                    Unassigned
-                                {% endif %}
-                            </span>
-
-                        </div>
-
-                    </div>
-                {% endfor %}
-
-            </div>
-
+            {{ task_utils.render_task_card(done_tasks, now, current_user, project) }}
         </div>
 
     </div>
-
+    </main>
 </div>
 <script>
 
@@ -971,10 +535,9 @@ function closeAllDrawers() {
     closeTaskDrawer();
     closeEditTaskModal();
 }
+
 document.getElementById("timezone").value =
     Intl.DateTimeFormat().resolvedOptions().timeZone;
-</script>
-<script>
 
 let draggedTaskId = null;
 
@@ -1004,7 +567,7 @@ function drop(event, newStatus) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            location.reload(); // simple + stable MVP
+            location.reload();
         }
     });
 

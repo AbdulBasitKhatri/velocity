@@ -2,24 +2,24 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<!-- Main centering wrapper -->
-<div class="min-h-screen flex flex-col items-center justify-center p-4">
+<div class="min-h-screen flex flex-col items-center justify-center p-6 bg-[#070312] relative overflow-hidden">
+    
+    <!-- Background glow effect -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-fuchsia-600/10 blur-[100px] pointer-events-none"></div>
 
-    <!-- Dynamic Flash Messages -->
-    <div class="w-full max-w-md">
+    <!-- Compact Flash Messages -->
+    <div class="w-full max-w-sm z-10 mb-2">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="flex items-center p-4 mb-4 rounded-lg border shadow-sm 
+              <div class="flex items-center p-3 mb-3 rounded-xl border backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-300
                 {% if category == 'success' %}
-                    text-green-800 bg-green-50 border-green-200
+                    text-green-300 bg-green-500/10 border-green-500/20
                 {% else %}
-                    text-red-800 bg-red-50 border-red-200
+                    text-red-300 bg-red-500/10 border-red-500/20
                 {% endif %}" role="alert">
-                <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://w3.org" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                </svg>
-                <div class="ms-3 text-sm font-medium">
+                <i data-feather="{% if category == 'success' %}check-circle{% else %}alert-circle{% endif %}" class="w-4 h-4"></i>
+                <div class="ms-3 text-xs font-medium">
                   {{ message }}
                 </div>
               </div>
@@ -28,43 +28,63 @@
         {% endwith %}
     </div>
 
-    <!-- Registration Card -->
-    <div class="glass-card w-full max-w-md p-8 rounded-2xl shadow-2xl bg-slate-800/50 backdrop-blur-md border border-white/10">
-        <h2 class="text-3xl font-bold text-center mb-6 text-purple-400">Create Identity</h2>
+    <!-- Compact Registration Card -->
+    <div class="relative w-full max-w-sm p-6 md:p-8 rounded-[2rem] bg-purple-500/5 border border-purple-500/10 shadow-2xl backdrop-blur-xl z-10">
+        
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-purple-500/20 border border-fuchsia-500/20 mb-3">
+                <i data-feather="user-plus" class="w-6 h-6 text-fuchsia-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-purple-100 tracking-tight">Create Identity</h2>
+            <p class="text-purple-300/40 text-xs mt-1.5">Join the Velocity network</p>
+        </div>
         
         <form action="/register" method="POST" class="space-y-4">
-            <div class="grid grid-cols-1 gap-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-purple-200">Full Name</label>
-                    <input type="text" name="full_name" required 
-                        class="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 outline-none transition">
+            <div class="grid grid-cols-1 gap-3.5">
+                <!-- Full Name -->
+                <div class="space-y-1">
+                    <label class="text-[10px] tracking-widest font-bold text-purple-300/60 ml-1 uppercase">Full Name</label>
+                    <input type="text" name="full_name" required placeholder="John Doe"
+                        class="w-full bg-purple-500/5 border border-purple-500/20 rounded-xl px-4 py-2 text-sm text-purple-100 placeholder:text-purple-300/10 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-purple-200">Username</label>
-                    <input type="text" name="username" required 
-                        class="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 outline-none transition">
+
+                <!-- Username -->
+                <div class="space-y-1">
+                    <label class="text-[10px] tracking-widest font-bold text-purple-300/60 ml-1 uppercase">Username</label>
+                    <input type="text" name="username" required placeholder="operator_01"
+                        class="w-full bg-purple-500/5 border border-purple-500/20 rounded-xl px-4 py-2 text-sm text-purple-100 placeholder:text-purple-300/10 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-purple-200">Email</label>
-                    <input type="email" name="email" required 
-                        class="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 outline-none transition">
+
+                <!-- Email -->
+                <div class="space-y-1">
+                    <label class="text-[10px] tracking-widest font-bold text-purple-300/60 ml-1 uppercase">Email</label>
+                    <input type="email" name="email" required placeholder="name@velocity.com"
+                        class="w-full bg-purple-500/5 border border-purple-500/20 rounded-xl px-4 py-2 text-sm text-purple-100 placeholder:text-purple-300/10 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-purple-200">Password</label>
-                    <input type="password" name="password" required 
-                        class="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 outline-none transition">
+
+                <!-- Password -->
+                <div class="space-y-1">
+                    <label class="text-[10px] tracking-widest font-bold text-purple-300/60 ml-1 uppercase">Password</label>
+                    <input type="password" name="password" required placeholder="••••••••"
+                        class="w-full bg-purple-500/5 border border-purple-500/20 rounded-xl px-4 py-2 text-sm text-purple-100 placeholder:text-purple-300/10 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all">
                 </div>
             </div>
             
             <button type="submit" 
-                class="w-full mt-4 bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg shadow-purple-500/20 transition duration-300 transform hover:scale-[1.02]">
-                Initialize Account
+                class="w-full mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:opacity-90 text-white text-sm font-bold py-3.5 rounded-xl shadow-lg shadow-fuchsia-500/20 transition-all active:scale-95">
+                <span>Initialize Account</span>
+                <i data-feather="chevron-right" class="w-4 h-4"></i>
             </button>
         </form>
 
-        <p class="mt-6 text-center text-sm text-purple-300/60">
-            Already have an ID? <a href="/login" class="text-purple-400 hover:underline">Login</a>
-        </p>
+        <div class="mt-6 pt-5 border-t border-purple-500/10 text-center">
+            <p class="text-[11px] text-purple-300/30">
+                Already have an ID? 
+                <a href="/login" class="text-fuchsia-400 hover:text-purple-400 font-bold transition-colors">
+                    Login
+                </a>
+            </p>
+        </div>
     </div>
 </div>
 {% endblock %}
