@@ -127,15 +127,67 @@ class Task(db.Model):
 def index():
     return jsonify({"message": "Task Tracking API is running", "database": "shop_db"})
 
-@app.route('/projects', methods=['GET'])
-def get_projects():
-    projects = Project.query.all()
-    return jsonify([{
-        "id": p.id, 
-        "name": p.name, 
-        "owner": p.owner.username,
-        "task_count": len(p.tasks)
-    } for p in projects])
+@app.route('/projects')
+@login_required
+def projects_page():
+
+    owned_projects = Project.query.filter_by(
+        owner_id=current_user.id
+    ).all()
+
+    member_projects = Project.query.join(ProjectMember).filter(
+        ProjectMember.user_id == current_user.id
+    ).all()
+
+    projects = list({
+        project.id: project
+        for project in (owned_projects + member_projects)
+    }.values())
+
+    return render_template(
+        'projects.html',
+        projects=projects
+    )
+
+@app.route('/tasks')
+@login_required
+def tasks_page():
+
+    now = datetime.utcnow()
+
+    tasks = Task.query.filter_by(
+        assignee_id=current_user.id
+    ).order_by(
+        Task.due_date.asc()
+    ).all()
+
+    overdue_tasks = []
+    today_tasks = []
+    upcoming_tasks = []
+    no_due_tasks = []
+
+    for task in tasks:
+
+        if not task.due_date:
+            no_due_tasks.append(task)
+
+        elif task.due_date < now and task.status != 'done':
+            overdue_tasks.append(task)
+
+        elif task.due_date.date() == now.date():
+            today_tasks.append(task)
+
+        else:
+            upcoming_tasks.append(task)
+
+    return render_template(
+        'tasks.html',
+        overdue_tasks=overdue_tasks,
+        today_tasks=today_tasks,
+        upcoming_tasks=upcoming_tasks,
+        no_due_tasks=no_due_tasks,
+        now=now
+    )
 
 @app.route('/projects/<int:project_id>/tasks', methods=['GET'])
 def get_project_tasks(project_id):
