@@ -19,6 +19,24 @@
     {% block content %}{% endblock %}
     <script>
         feather.replace();
+        
+        function toggleSidebar() {
+
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            sidebar.style.left = '0';
+            overlay.classList.remove('hidden');
+        }
+
+        function closeSidebar() {
+
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            sidebar.style.left = '-300px';
+            overlay.classList.add('hidden');
+        }
     </script>
 </body>
 </html>
