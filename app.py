@@ -1,3 +1,5 @@
+import email
+
 from flask import Flask, jsonify, request, redirect, url_for, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -445,7 +447,9 @@ def add_project_member(project_id):
 
     username = request.form['username']
 
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter(
+        (User.username == username) | (User.email == username)
+    ).first()
 
     if not user:
         flash("User not found", "danger")
