@@ -448,7 +448,11 @@ def add_project_member(project_id):
     user = User.query.filter_by(username=username).first()
 
     if not user:
-        return "User not found"
+        flash("User not found", "danger")
+        return redirect(url_for(
+            'project_detail',
+            project_id=project.id
+        ))
 
     # Prevent duplicates
     existing_member = ProjectMember.query.filter_by(
@@ -457,7 +461,11 @@ def add_project_member(project_id):
     ).first()
 
     if existing_member:
-        return "User already in project"
+        flash("User is already a member of the project.", "warning")
+        return redirect(url_for(
+            'project_detail',
+            project_id=project.id
+        ))
 
     new_member = ProjectMember(
         project_id=project.id,
@@ -467,6 +475,7 @@ def add_project_member(project_id):
     db.session.add(new_member)
     db.session.commit()
 
+    flash("Member added successfully.", "success")
     return redirect(url_for(
         'project_detail',
         project_id=project.id
@@ -563,6 +572,62 @@ def delete_task(task_id):
     return redirect(url_for(
         'project_detail',
         project_id=project_id
+    ))
+
+@app.route('/projects/<int:project_id>/remove-member/<int:user_id>', methods=['POST'])
+@login_required
+def remove_project_member(project_id, user_id):
+
+    project = Project.query.get_or_404(project_id)
+
+    # Only owner can remove members
+    if project.owner_id != current_user.id:
+        return "Access denied", 403
+
+    # Prevent owner removal
+    if user_id == project.owner_id:
+
+        flash(
+            "Project owner cannot be removed.",
+            "warning"
+        )
+
+        return redirect(url_for(
+            'project_detail',
+            project_id=project.id
+        ))
+
+    # Find membership
+    member = ProjectMember.query.filter_by(
+        project_id=project.id,
+        user_id=user_id
+    ).first()
+
+    # Member not found
+    if not member:
+
+        flash(
+            "Member not found in this project.",
+            "danger"
+        )
+
+        return redirect(url_for(
+            'project_detail',
+            project_id=project.id
+        ))
+
+    # Remove member
+    db.session.delete(member)
+    db.session.commit()
+
+    flash(
+        "Member removed successfully.",
+        "success"
+    )
+
+    return redirect(url_for(
+        'project_detail',
+        project_id=project.id
     ))
 
 with app.app_context():

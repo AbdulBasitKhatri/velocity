@@ -7,21 +7,7 @@
     <!-- Subtle Background glow -->
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-600/10 blur-[100px] pointer-events-none"></div>
 
-    <!-- Flash Messages (Compact) -->
-    <div class="w-full max-w-sm z-10 mb-2">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="flex items-center p-3 mb-3 text-red-300 rounded-xl bg-red-500/10 border border-red-500/20 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-300" role="alert">
-                <i data-feather="alert-circle" class="w-4 h-4"></i>
-                <div class="ms-3 text-xs font-medium">
-                  {{ message }}
-                </div>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-    </div>
+    {% include "flash.html" %}
 
     <!-- Compact Login Card -->
     <div class="relative w-full max-w-sm p-6 md:p-8 rounded-[2rem] bg-purple-500/5 border border-purple-500/10 shadow-2xl backdrop-blur-xl z-10">
