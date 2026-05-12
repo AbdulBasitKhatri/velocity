@@ -13,6 +13,19 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(139, 92, 246, 0.3);
         }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #c026d3 #020617; /* Fuchsia 600 + Slate 950 */
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb {
+            background: #c026d3;
+            border-radius: 5px;
+            border: 2px solid #020617; /* Creates that sleek modern padding */
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #e879f9; }
     </style>
 </head>
 <body class="text-purple-100 bg-slate-950 min-h-screen">
