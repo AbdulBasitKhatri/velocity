@@ -10,13 +10,13 @@
     <main class="flex-1 text-purple-100 p-6 pt-20 md:pt-6 md:ml-72 overflow-x-hidden">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+    <div class="flex flex-col gap-5 md:gap-0 md:flex-row md:items-center md:justify-between mb-4 md:mb-8">
 
         <div>
 
-            <a href="/dashboard"
-               class="text-purple-400 hover:text-purple-300 text-sm">
-                ← Back to Dashboard
+            <a href="/dashboard" class="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm transition">
+                <i data-feather="arrow-left" class="w-4 h-4"></i>
+                Back to Dashboard
             </a>
 
             <h1 class="text-4xl font-bold text-purple-300 mt-3">
@@ -29,14 +29,19 @@
 
         </div>
                 <!-- Action Bar -->
-
+        <!-- <br class="md:hidden block"> -->
         <div class="flex items-center gap-4 mb-8">
-
+            <button
+                onclick="window.location.href='/projects/{{ project.id }}/edit'"
+                class="bg-slate-900 hover:bg-slate-800 border border-purple-500/20 px-5 py-3 rounded-xl transition"
+            >
+                <i data-feather="edit-2" class="w-6 h-6"></i>
+            </button>
             <button
                 onclick="openMembersDrawer()"
                 class="bg-slate-900 hover:bg-slate-800 border border-purple-500/20 px-5 py-3 rounded-xl transition"
             >
-                <i data-feather="user" class="w-6 h-6"></i>
+                <i data-feather="users" class="w-6 h-6"></i>
             </button>
 
             <button
@@ -193,7 +198,7 @@
                     onclick="closeTaskDrawer()"
                     class="text-purple-300 hover:text-white text-2xl"
                 >
-                    ×
+                    <i data-feather="x" class="w-6 h-6"></i>
                 </button>
 
             </div>

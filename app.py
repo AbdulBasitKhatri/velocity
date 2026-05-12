@@ -347,6 +347,52 @@ def create_project():
 
     return redirect(url_for('dashboard'))
 
+@app.route('/projects/<int:project_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_project(project_id):
+
+    project = Project.query.get_or_404(project_id)
+
+    # Only owner can edit
+    if project.owner_id != current_user.id:
+        flash("Access denied.", "danger")
+
+        return redirect(url_for(
+            'project_detail',
+            project_id=project.id
+        ))
+
+    if request.method == 'GET':
+
+        return render_template(
+            'edit_project.html',
+            project=project
+        )
+
+    name = request.form['name']
+    description = request.form.get('description')
+
+    if not name.strip():
+
+        flash("Project name is required.", "warning")
+
+        return redirect(url_for(
+            'edit_project',
+            project_id=project.id
+        ))
+
+    project.name = name
+    project.description = description
+
+    db.session.commit()
+
+    flash("Project updated successfully.", "success")
+
+    return redirect(url_for(
+        'project_detail',
+        project_id=project.id
+    ))
+
 @app.route('/projects/<int:project_id>')
 @login_required
 def project_detail(project_id):
